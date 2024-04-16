@@ -10,7 +10,8 @@ const tossCoin = require("./helpers/tossCoin");
 const awardGameWinner = require("./helpers/awardGameWinner");
 const handlePick = require("./helpers/handlePick");
 const joinGame = require("./helpers/joinGame");
-const express = require("express")
+const express = require("express");
+const calculateCreditAmount = require("./helpers/calculateCreditAmount");
 const app = express()
 
 
@@ -171,12 +172,6 @@ const showOpenGames = async (ctx) => {
       );
     }
 
-    const creditAmount = (price) => {
-      const totalAmount = price * 2;
-      const charges = totalAmount * 0.02;
-      return totalAmount - charges;
-    };
-
     //List open game(s)
     let replyText = `
 🟡🟡 *ALL OPEN GAMES* 🟡🟡  
@@ -190,7 +185,7 @@ GAME ID: *${eachGame.gameId}*
 
 STAKED AMOUNT: *${eachGame.amount} SOL*
 
-CASHOUT AMOUNT: *${creditAmount(eachGame.amount)} SOL*
+CASHOUT AMOUNT: *${calculateCreditAmount(eachGame.amount)} SOL*
 
 [Join game here](t.me/solflipbot?start=gameId=${eachGame.gameId})
 

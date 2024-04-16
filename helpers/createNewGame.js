@@ -1,5 +1,6 @@
 const Game = require("../models/gameModel");
 const { v4: uuidv4 } = require('uuid');
+const calculateCreditAmount = require("./calculateCreditAmount");
 
 module.exports = createNewGame = async (ctx, amount, bot) => {
   const { id } = ctx.from;
@@ -37,7 +38,9 @@ I'll notify you when player 2 joins.
 
 Game ID: *${gameId}*
 
-Staked amount: *${amount} SOL*
+Staked Amount: *${amount} SOL*
+
+Cashout Amount: *${calculateCreditAmount(amount)} SOL*
 
 Status: OPEN 🟡
 

@@ -1,3 +1,5 @@
+const calculateCreditAmount = require("./calculateCreditAmount");
+
 const notifyChannel = async (bot, player, gameId, amount) => {
   replyText = `*GAME COMPLETED*🔴😎
 
@@ -25,13 +27,13 @@ module.exports = awardGameWinner = async (result, gameDetails, bot, newGame) => 
     gameDetails = Object.assign(gameDetails, { status: "COMPLETED" });
     await gameDetails.save();
 
-    const totalAmount = gameDetails.amount * 2;
-    const charges = totalAmount * 0.02
-    const creditAmount = totalAmount - charges;
+    const creditAmount = calculateCreditAmount(gameDetails.amount)
 
     player1ReplyText = `
 Congratulations✨ You won the game.
+
 You picked: *${gameDetails.player1Flip}*
+
 Player 2 picked: *${gameDetails.player2Flip}*
 
 Toss Results: *${resultValue}*
@@ -41,7 +43,9 @@ Amount earned: *${creditAmount} SOL*
 
     player2ReplyText = `
 Sorry😔 You lost the game.
+
 You picked: *${gameDetails.player2Flip}*
+
 Player 1 picked: *${gameDetails.player1Flip}*
 
 Toss Results: *${resultValue}*
@@ -76,7 +80,9 @@ Start a new game and try again.
 
     player2ReplyText = `
 Congratulations✨ You won the game.
+
 You picked: *${gameDetails.player2Flip}*
+
 Player 1 picked: *${gameDetails.player1Flip}*
 
 Toss Results: *${resultValue}*
@@ -86,7 +92,9 @@ Amount earned: *${creditAmount} SOL*
 
     player1ReplyText = `
 Sorry😔 You lost the game.
+
 You picked: *${gameDetails.player1Flip}*
+
 Player 2 picked: *${gameDetails.player2Flip}*
 
 Toss Results: *${resultValue}*

@@ -68,7 +68,8 @@ Pick a HEAD or TAIL.`;
   }
 
   if (!player1HasPlayed) {
-    player2ReplyText += `Waiting for player 1 to pick a HEAD or TAIL.
+    player2ReplyText += `\nWaiting for player 1 to pick a HEAD or TAIL.
+
 After they pick, you will pick, then i will toss the coin.
   `;
   }
@@ -91,5 +92,7 @@ After they pick, you will pick, then i will toss the coin.
   }
 
   // Ask player 2 to wait for player 1
-  ctx.reply(player2ReplyText);
+  ctx.reply(player2ReplyText, {
+    parse_mode:"Markdown"
+  });
 };
