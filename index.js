@@ -13,12 +13,12 @@ const joinGame = require("./helpers/joinGame");
 const express = require("express")
 const app = express()
 
-app.get("/", (req, res) => res.send("Hello solflipbot"));
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const port = process.env.PORT || 3895;
+const port = process.env.PORT || 5000
 app.listen(port, () => console.log("App is running"));
+app.get("/", (req, res) => res.send("Hello solflipbot"));
 
 const URI = process.env.URI;
 mongoose
