@@ -10,9 +10,8 @@ const tossCoin = require("./helpers/tossCoin");
 const awardGameWinner = require("./helpers/awardGameWinner");
 const handlePick = require("./helpers/handlePick");
 const joinGame = require("./helpers/joinGame");
-let newGame = false;
-
-const app = require("express")();
+const express = require("express")
+const app = express()
 
 app.get("/", (req, res) => res.send("Hello solflipbot"));
 
@@ -27,6 +26,8 @@ mongoose
   .then(() => console.log("Connected to db"))
   .catch((err) => console.log("Error connecting to database\n" + err));
 
+
+let newGame = false;
 const showMenu = async (ctx) => {
   const replyText = `
 Welcome to solflip bot.
