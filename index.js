@@ -12,12 +12,13 @@ const handlePick = require("./helpers/handlePick");
 const joinGame = require("./helpers/joinGame");
 const express = require("express");
 const calculateCreditAmount = require("./helpers/calculateCreditAmount");
-const app = express()
+const app = express();
 
+const solanaWeb3 = require("@solana/web3.js");
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 5000;
 app.listen(port, () => console.log("App is running"));
 app.get("/", (req, res) => res.send("Hello solflipbot"));
 
@@ -26,7 +27,6 @@ mongoose
   .connect(URI)
   .then(() => console.log("Connected to db"))
   .catch((err) => console.log("Error connecting to database\n" + err));
-
 
 let newGame = false;
 const showMenu = async (ctx) => {
@@ -127,6 +127,63 @@ bot.command("open_games", async (ctx) => {
   await showOpenGames(ctx);
 });
 
+const showOpenGames = async (ctx) => {
+  // ctx.reply("No open games yet. Check again later.");
+  try {
+    const allOpenGames = await Game.find({ status: "OPEN" });
+
+    //If there are no open games
+    if (allOpenGames.length == 0) {
+      return ctx.reply(
+        "No open games yet, check again later or start a new one to play."
+      );
+    }
+
+    //List open game(s)
+    let replyText = `
+🟡🟡 *ALL OPEN GAMES* 🟡🟡  
+`;
+
+    allOpenGames.forEach((eachGame) => {
+      replyText += `
+*=============================*
+
+GAME ID: *${eachGame.gameId}*
+
+STAKED AMOUNT: *${eachGame.amount} SOL*
+
+CASHOUT AMOUNT: *${calculateCreditAmount(eachGame.amount)} SOL*
+
+[Join game here](t.me/solflipbot?start=gameId=${eachGame.gameId})
+
+*=============================*
+`;
+      ctx.reply(replyText, {
+        parse_mode: "Markdown",
+        disable_web_page_preview: true,
+      });
+    });
+  } catch (error) {
+    ctx.reply("Couldn't load open games. Please try again later.");
+    console.log(error);
+  }
+};
+
+bot.command("address", async (ctx) => {
+  const generateKey = async () => {
+    const keyPair = solanaWeb3.Keypair.generate();
+
+    const publicKey =  keyPair.publicKey.toString()
+    const secretKey = keyPair.secretKey
+
+    const replyText = `Public key:\n${publicKey}\n\nSecret key:${secretKey}`
+
+    ctx.reply(replyText)
+  };
+
+  generateKey();
+});
+
 //handles user input. WARNING: All command handlers MUST be written above this function.
 bot.on("message", async (ctx) => {
   let userInput = ctx.message.text.trim();
@@ -160,45 +217,6 @@ bot.on("message", async (ctx) => {
   await createNewGame(ctx, sol_amount, bot);
 });
 
-const showOpenGames = async (ctx) => {
-  // ctx.reply("No open games yet. Check again later.");
-  try {
-    const allOpenGames = await Game.find({ status: "OPEN" });
-
-    //If there are no open games
-    if (allOpenGames.length == 0) {
-      return ctx.reply(
-        "No open games yet, check again later or start a new one to play."
-      );
-    }
-
-    //List open game(s)
-    let replyText = `
-🟡🟡 *ALL OPEN GAMES* 🟡🟡  
-`;
-
-    allOpenGames.forEach((eachGame) => {
-      replyText += `
-*=============================*
-
-GAME ID: *${eachGame.gameId}*
-
-STAKED AMOUNT: *${eachGame.amount} SOL*
-
-CASHOUT AMOUNT: *${calculateCreditAmount(eachGame.amount)} SOL*
-
-[Join game here](t.me/solflipbot?start=gameId=${eachGame.gameId})
-
-*=============================*
-`;
-      ctx.reply(replyText, { parse_mode: "Markdown", disable_web_page_preview:true });
-    });
-  } catch (error) {
-    ctx.reply("Couldn't load open games. Please try again later.")
-    console.log(error)
-  }
-};
-
 // Set bot commands for Telegram
 bot.telegram.setMyCommands([
   { command: "start", description: "Start the Solflipbot" },
@@ -207,6 +225,7 @@ bot.telegram.setMyCommands([
     command: "open_games",
     description: "See list of games awaiting player 2",
   },
+  // { command: "address", description: "Create new SOL address" },
 ]);
 
 bot.launch();
